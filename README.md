@@ -13,17 +13,17 @@ This role requires Ansible 2.0 or higher and either a debian or redhat based OS
 Examples
 ========
 
-Install ModSec
-```ansible-playbook -v modsecurity.yaml --tags "modsec_install"```
+Install ModSec:
+```ansible-playbook modsecurity.yaml --tags "modsec_install"```
 
-Install CRS
-```ansible-playbook -v modsecurity.yaml --tags "crs_install"```
+Install CRS:
+```ansible-playbook modsecurity.yaml --tags "crs_install"```
 
-Uninstall CRS
-```ansible-playbook -v modsecurity.yaml --tags "crs_uninstall"```
+Uninstall CRS:
+```ansible-playbook modsecurity.yaml --tags "crs_uninstall"```
 
-Uninstall ModSec
-```ansible-playbook -v modsecurity.yaml --tags "modsec_uninstall"```
+Uninstall ModSec:
+```ansible-playbook modsecurity.yaml --tags "modsec_uninstall"```
 
 
 
