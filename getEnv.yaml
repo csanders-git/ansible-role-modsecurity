@@ -1,0 +1,23 @@
+---
+  - name: Find our modsecurity.so Module
+    find: paths="/etc/" patterns="mod_security2.so" recurse=yes follow=true
+    register: ModSecModulePath
+  - name: find out where our httpd.conf is.
+    find: paths="/etc/" patterns="httpd.conf" recurse=yes follow=true
+    register: HttpConfPath
+  - name: extract Path for ModSecModule
+    set_fact:
+       ModSecModulePath: "{{ ModSecModulePath[\"files\"][0][\"path\"] }}"
+       HttpConfPath: "{{ HttpConfPath[\"files\"][0][\"path\"] }}"
+       foundData: True
+    when: ModSecModulePath["matched"] == 1 and HttpConfPath["matched"] == 1
+  - name: Check to make sure we have data
+    fail: msg="We were unable to locate the httpd conf path or ModSec module path"
+    when: foundData is not defined or foundData != 1
+  - name: find the ServerRoot
+    shell: 'cat {{HttpConfPath}} | grep -o "^ServerRoot\s\".*\"$" | grep -o \".*\" | tr -d "\""'
+    register: HttpServerRoot
+  - name: Extract HTTP Server Root
+    set_fact:
+       HttpServerRoot: "{{ HttpServerRoot[\"stdout\"] }}"
+

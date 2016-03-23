@@ -1,0 +1,30 @@
+---
+    # Clone the ModSecurity Repo into our scratch
+    - name: Clone ModSec Repo
+      git: repo=git://github.com/SpiderLabs/ModSecurity/
+           dest="{{ ScratchLocation }}/ModSecurity"
+           version=HEAD
+           update=no
+    # Install ModSecurity
+    - name: Check if configure already exists
+      stat: path="{{ ScratchLocation }}/ModSecurity/configure"
+      register: configureStat
+    - name: Run autogen.sh
+      command: ./autogen.sh chdir="{{ ScratchLocation }}/ModSecurity"
+      when: not configureStat.stat.exists
+    - name: Check if Makefile already exists
+      stat: path="{{ ScratchLocation }}/ModSecurity/Makefile"
+      register: makeStat
+    - name: Run ./configure
+      command: ./configure chdir="{{ ScratchLocation }}/ModSecurity"
+      when: not makeStat.stat.exists
+    # Currently a bug in Ansible
+    - name: Check if mod_security2.so already exists
+      stat: path="{{ ScratchLocation }}/apache2/.libs/mod_security2.so"
+      register: soStat
+    - name: Run make
+      command: make chdir="{{ ScratchLocation }}/ModSecurity"
+      when: not soStat.stat.exists
+    - name: run Make install
+      command: make install chdir="{{ ScratchLocation }}/ModSecurity"
+      when: not soStat.stat.exists

@@ -1,0 +1,167 @@
+---
+- name: ModSecurity Playbook
+  hosts: localhost
+  become: True
+  tasks:
+  - name: Prevent 'all' tag from running
+    fail: msg="This playbook must be run with either 'install_modsec', 'install_crs', or 'uninstall'"
+  tags: all
+- name: ModSecurity Install
+  hosts: localhost
+  become: True
+  tasks:
+  - include: debian.yaml
+    when: ansible_os_family == 'Debian'
+  - include: redhat.yaml
+    when: ansible_os_family == 'RedHat'
+  # Try and install YAJL (which is sometimes in yum)
+  # TODO
+  - name: Create scratch directory
+    file: path="{{ ScratchLocation }}"  state=directory
+  # Check if ssdeep is installed
+  - name: Check if ssdeep is installed
+    find: paths="/usr/bin,/usr/local,/usr/sbin" patterns=ssdeep recurse=yes
+    register: ssdeepInfo
+  # If it's not installed we need to donwload and install it
+  - name: Download ssdeep
+    get_url: url=http://downloads.sourceforge.net/project/ssdeep/ssdeep-2.13/ssdeep-2.13.tar.gz dest="{{ ScratchLocation }}/ssdeep.tar.gz"
+    when: ssdeepInfo["matched"] == 0
+  - name: Unpack ssdeep
+    unarchive: src="{{ ScratchLocation }}/ssdeep.tar.gz" dest="{{ ScratchLocation }}"
+    when: ssdeepInfo["matched"] == 0
+  - name: configure ssdeep
+    command: ./configure chdir="{{ ScratchLocation }}/ssdeep-2.13"
+    when: ssdeepInfo["matched"] == 0
+  - name: Run ./make
+    command: make install chdir="{{ ScratchLocation }}/ssdeep-2.13"
+    when: ssdeepInfo["matched"] == 0
+  - include: modsecSetup.yaml
+  - include: getEnv.yaml
+  # Install modsecurity.conf and unicode.map
+  - name: Create modsecurity.d directory
+    file: path="{{ HttpServerRoot }}/modsecurity.d" state=directory
+  - name: Check if we have loaded the module
+    lineinfile:
+      dest="{{ HttpConfPath }}"
+      line="LoadModule security2_module {{ ModSecModulePath }}"
+      regexp="^\s*?LoadModule\ssecurity2_module\s.*?.so$"
+      state=present
+      insertafter=EOF
+  - name: Check if we have added our include
+    lineinfile:
+      dest="{{ HttpConfPath }}"
+      line="Include modsecurity.d/*.conf"
+      regexp="^Include modsecurity\.d\/\*\.conf$"
+      state=present
+      insertafter=EOF
+  - name: Copy modsecurity.conf from git
+    copy: src="{{ ScratchLocation }}/ModSecurity/modsecurity.conf-recommended" dest="{{ HttpServerRoot }}/modsecurity.d/modsecurity.conf"
+  - name: Copy unicode.mapping from git
+    copy: src="{{ ScratchLocation }}/ModSecurity/unicode.mapping" dest="{{ HttpServerRoot }}/modsecurity.d/unicode.mapping"
+  # Remove the scratch
+  - name: get scratch stat info
+    stat: path="{{ ScratchLocation }}"
+    register: scratchStat
+  - name: Delete Scartch
+    file: path="{{ ScratchLocation }}" state=absent
+    when: scratchStat.stat.isdir is defined and scratchStat.stat.isdir == true
+  # Restart Apache
+  vars:
+    ScratchLocation: /opt/ansibleScratch
+  tags: modsec_install
+
+- name: OWASP CRS Install
+  hosts: localhost
+  become: True
+  tasks:
+  - include: getEnv.yaml
+  - name: Check if we have loaded the module
+    lineinfile:
+      dest="{{ HttpConfPath }}"
+      line="LoadModule security2_module {{ ModSecModulePath }}"
+      regexp="^\s*?LoadModule\ssecurity2_module\s.*?.so$"
+      state=present
+      insertafter=EOF
+  - name: Check if we have added our include
+    lineinfile:
+      dest="{{ HttpConfPath }}"
+      line="Include modsecurity.d/*.conf"
+      regexp="^Include modsecurity\.d\/\*\.conf$"
+      state=present
+      insertafter=EOF
+  - name: Create modsecurity.d directory
+    file: path="{{ HttpServerRoot }}/modsecurity.d" state=directory
+  - name: Clone owasp CRS
+    git: repo=git://github.com/SpiderLabs/owasp-modsecurity-crs
+         dest={{ HttpServerRoot }}/modsecurity.d/owasp-crs/
+         version=v3.0.0-rc1
+         update=no
+  - name: Check if example already renamed
+    stat: path="{{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf.example"
+    register: exampleStat
+  - name: Rename setup.example to .conf
+    command: "mv {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf.example {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf" 
+    when: exampleStat.stat.exists
+  - name: Check if includeOWASP.conf already written
+    stat: path="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
+    register: owaspStat
+  - name: Add a script to load our CRS Rules
+    copy: content="Include modsecurity.d/owasp-crs/*.conf\nInclude modsecurity.d/owasp-crs/rules/*.conf" dest="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
+    when: not owaspStat.stat.exists
+  tags: crs_install
+
+- name: OWASP CRS uninstall
+  hosts: localhost
+  become: True
+  tasks:
+  - include: getEnv.yaml
+  - name: Check if we have our includeOWASP.conf
+    stat: path="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
+    register: includeStat
+  - name: Delete includeOWASP.conf
+    file: path="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf" state=absent
+    when: includeStat.stat.exists
+  - name: Check if our crs git is there
+    stat: path="{{ HttpServerRoot }}/modsecurity.d/owasp-crs/"
+    register: crsStat
+  - name: Delete CRS
+    file: path="{{ HttpServerRoot }}/modsecurity.d/owasp-crs/" state=absent
+    when: crsStat.stat.isdir is defined and crsStat.stat.isdir == true
+  tags: crs_uninstall
+
+- name: modsec uninstall
+  hosts: localhost
+  become: True
+  tasks:
+  - include: getEnv.yaml
+  - name: delete mod_security2.so
+    debug: var=ModSecModulePath
+  - name: Check if we have our modsecurity_2.so
+    stat: path="{{ ModSecModulePath }}"
+    register: modsecStat
+  - name: Delete includeOWASP.conf
+    file: path="{{ ModSecModulePath }}" state=absent
+    when: modsecStat.stat.exists
+  # Remove the modsecurity.d folder 
+  - name: Check if our modsecurity.d is there
+    stat: path="{{ HttpServerRoot }}/modsecurity.d"
+    register: modsecFolderStat
+  - name: Delete modsecurity.d
+    file: path="{{ HttpServerRoot }}/modsecurity.d" state=absent
+    when: modsecFolderStat.stat.isdir is defined and modsecFolderStat.stat.isdir == true
+  # Update our httpd.conf
+  - name: remove the LoadModule if it is there
+    lineinfile:
+      dest="{{ HttpConfPath }}"
+      line=""
+      regexp="^\s*?LoadModule\ssecurity2_module\s.*?.so$"
+      state=present
+  - name: Remove the include modsecurity.d if there
+    lineinfile:
+      dest="{{ HttpConfPath }}"
+      line=""
+      regexp="^Include modsecurity\.d\/\*\.conf$"
+      state=present
+  tags: modsec_uninstall
+
+ 
