@@ -73,6 +73,8 @@
 - name: OWASP CRS Install
   hosts: localhost
   become: True
+  vars:
+    crs_version: master
   tasks:
   - include: getEnv.yaml
   - name: Check if we have loaded the module
@@ -94,7 +96,7 @@
   - name: Clone owasp CRS
     git: repo=git://github.com/SpiderLabs/owasp-modsecurity-crs
          dest={{ HttpServerRoot }}/modsecurity.d/owasp-crs/
-         version=v3.0.0-rc1
+         version={{crs_version}}
          update=no
   - name: Check if example already renamed
     stat: path="{{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf.example"
@@ -105,9 +107,13 @@
   - name: Check if includeOWASP.conf already written
     stat: path="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
     register: owaspStat
-  - name: Add a script to load our CRS Rules
+  - name: Add a script to load our CRS Rules (v3)
     copy: content="Include modsecurity.d/owasp-crs/*.conf\nInclude modsecurity.d/owasp-crs/rules/*.conf" dest="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
-    when: not owaspStat.stat.exists
+    when: not owaspStat.stat.exists and crs_version == "v3.0.0-rc1"
+  - name: Add a script to load our CRS Rules (v2)
+    copy: content="Include modsecurity.d/owasp-crs/*.conf\nInclude modsecurity.d/owasp-crs/base_rules/*.conf" dest="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
+    when: not owaspStat.stat.exists and crs_version == "master"
+
   tags: crs_install
 
 - name: OWASP CRS uninstall
