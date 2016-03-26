@@ -14,7 +14,27 @@
       - wget
       - gcc-c++
       - pcre-devel
-      when: ansible_pkg_mgr == 'yum'
+      - yajl-devel
+      when: ansible_pkg_mgr == 'yum' and ansible_distribution != 'Amazon'
+
+    - name: Install Apache if yum is available
+      yum: name={{ item }} state=installed
+      with_items:
+      - httpd24
+      - libxml2-devel
+      - httpd24-devel
+      - git
+      - libtool
+      - curl-devel
+      - gcc
+      - lua-devel
+      - wget
+      - gcc-c++
+      - pcre-devel
+     
+      when: ansible_pkg_mgr == 'yum' and ansible_distribution == 'Amazon'
+
+
     - name: Install Apache if dnf is available
       dnf: name={{ item }} state=installed
       with_items:
@@ -29,4 +49,5 @@
       - wget
       - gcc-c++
       - pcre-devel
+      - yajl-devel
       when: ansible_pkg_mgr == 'dnf'

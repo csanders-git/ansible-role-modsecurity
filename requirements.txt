@@ -1,1 +1,6 @@
+paramiko
+PyYAML
+Jinja2
+httplib2 
+six
 ansible>=2.0.0
