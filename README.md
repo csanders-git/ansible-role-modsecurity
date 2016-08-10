@@ -23,19 +23,19 @@ Examples
 ========
 
 Install ModSec:
-```ansible-playbook modsecurity.yaml --tags "modsec_install"```
+```/usr/local/bin/ansible-playbook modsecurity.yaml --tags "modsec_install"```
 
 Install CRS:
-```ansible-playbook modsecurity.yaml --tags "crs_install"```
+```/usr/local/bin/ansible-playbook modsecurity.yaml --tags "crs_install"```
 
 Note: By default this will install CRS master branch (v2). If you'd like a different version override the crs_version variable.
-```ansible-playbook modsecurity.yaml --tags "crs_install" --extra-vars "crs_version=v3.0.0-rc1"```
+```/usr/local/bin/ansible-playbook modsecurity.yaml --tags "crs_install" --extra-vars "crs_version=v3.0.0-rc1"```
 
 Uninstall CRS:
-```ansible-playbook modsecurity.yaml --tags "crs_uninstall"```
+```/usr/local/bin/ansible-playbook modsecurity.yaml --tags "crs_uninstall"```
 
 Uninstall ModSec:
-```ansible-playbook modsecurity.yaml --tags "modsec_uninstall"```
+```/usr/local/bin/ansible-playbook modsecurity.yaml --tags "modsec_uninstall"```
 
 
 
