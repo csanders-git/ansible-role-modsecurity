@@ -9,7 +9,7 @@ Requirements
 ------------
 OS Requirments:
 
-```yum install python git python-pip gcc python-devel libffi-devel openssl-devel```
+```yum install python git python-pip gcc python-devel libffi-devel openssl-devel yum-python```
 
 ``` pip install --upgrade pip && easy_install --upgrade pip```
 
