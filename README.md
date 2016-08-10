@@ -11,7 +11,7 @@ OS Requirments:
 
 ```yum install python git python-pip gcc python-devel libffi-devel openssl-devel yum-python```
 
-``` pip install --upgrade pip && easy_install --upgrade pip```
+``` easy_install --upgrade pip && python-pip install --upgrade pip ```
 
 git clone https://github.com/csanders-git/ansible-role-modsecurity
 
