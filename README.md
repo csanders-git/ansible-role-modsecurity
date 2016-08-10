@@ -11,13 +11,13 @@ OS Requirments:
 
 ```yum install python git python-pip gcc python-devel libffi-devel openssl-devel yum-python```
 
-``` easy_install --upgrade pip && python-pip install --upgrade pip ```
+``` easy_install --upgrade pip && /usr/local/bin/pip install --upgrade pip ```
 
 git clone https://github.com/csanders-git/ansible-role-modsecurity
 
 *On Amazon Linux /usr/local/bin is not in the path so you should either add it using ```PATH=/usr/local/bin:$PATH``` or use the full path when calling ansible-playbook.*
 
-This role requires Ansible 2.0 or higher and either a debian or redhat based OS.To install ansible run the requirements.txt ```python-pip install -r requirments.txt```
+This role requires Ansible 2.0 or higher and either a debian or redhat based OS.To install ansible run the requirements.txt ```/usr/local/bin/pip2.7 install -r requirements.txt```
 
 Examples
 ========
