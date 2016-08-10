@@ -7,8 +7,12 @@ have suggestions or constructive feedback, please provide it here.
 
 Requirements
 ------------
+OS Requirments:
+```yum install python git python-pip gcc python-devel libffi-devel openssl-devel```
+``` pip install --upgrade pip && easy_install --upgrade pip```
+git clone https://github.com/csanders-git/ansible-role-modsecurity
 
-This role requires Ansible 2.0 or higher and either a debian or redhat based OS.To install ansible run the requirements.txt ```pip install -r requirments.txt```
+This role requires Ansible 2.0 or higher and either a debian or redhat based OS.To install ansible run the requirements.txt ```python-pip install -r requirments.txt```
 
 Examples
 ========
