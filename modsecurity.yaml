@@ -24,7 +24,7 @@
     register: ssdeepInfo
   # If it's not installed we need to donwload and install it
   - name: Download ssdeep
-    get_url: url=http://downloads.sourceforge.net/project/ssdeep/ssdeep-2.13/ssdeep-2.13.tar.gz dest="{{ ScratchLocation }}/ssdeep.tar.gz"
+    get_url: url=http://downloads.sourceforge.net/project/ssdeep/ssdeep-2.13/ssdeep-2.13.tar.gz?r=&ts=1470792298&use_mirror=superb-sea2 dest="{{ ScratchLocation }}/ssdeep.tar.gz"
     when: ssdeepInfo["matched"] == 0
   - name: Unpack ssdeep
     unarchive: src="{{ ScratchLocation }}/ssdeep.tar.gz" dest="{{ ScratchLocation }}"
