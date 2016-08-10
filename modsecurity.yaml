@@ -105,15 +105,18 @@
          dest={{ HttpServerRoot }}/modsecurity.d/owasp-crs/
          version={{crs_version}}
          update=no
-  - name: Check if example already renamed
+  - name: Check if example already renamed (v2)
     stat: path="{{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf.example"
     register: exampleStat
+  - name: Check if example already renamed (v3)
+    stat: path="{{ HttpServerRoot }}/modsecurity.d/owasp-crs/crs-setup.conf.example"
+    register: exampleStatv3    
   - name: Rename setup.example to .conf (v2)
     command: "mv {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf.example {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf" 
     when: exampleStat.stat.exists and crs_version == "master"
   - name: Rename setup.example to .conf (v3)
     command: "mv {{ HttpServerRoot }}/modsecurity.d/owasp-crs/crs-setup.conf.example {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf" 
-    when: exampleStat.stat.exists and crs_version == "v3.0.0-rc1"    
+    when: exampleStatv3.stat.exists and crs_version == "v3.0.0-rc1"    
   - name: Check if includeOWASP.conf already written
     stat: path="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
     register: owaspStat
