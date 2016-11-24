@@ -81,7 +81,7 @@
   hosts: localhost
   become: True
   vars:
-    crs_version: master
+    crs_version: v3.0/master
   tasks:
   - include: getEnv.yaml
   - name: Check if we have loaded the module
@@ -113,19 +113,19 @@
     register: exampleStatv3    
   - name: Rename setup.example to .conf (v2)
     command: "mv {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf.example {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf" 
-    when: exampleStat.stat.exists and crs_version == "master"
+    when: exampleStat.stat.exists and crs_version == "v2.2/master"
   - name: Rename setup.example to .conf (v3)
     command: "mv {{ HttpServerRoot }}/modsecurity.d/owasp-crs/crs-setup.conf.example {{ HttpServerRoot }}/modsecurity.d/owasp-crs/modsecurity_crs_10_setup.conf" 
-    when: exampleStatv3.stat.exists and crs_version == "v3.0.0-rc1"    
+    when: exampleStatv3.stat.exists and crs_version == "v3.0/master"    
   - name: Check if includeOWASP.conf already written
     stat: path="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
     register: owaspStat
   - name: Add a script to load our CRS Rules (v3)
     copy: content="Include modsecurity.d/owasp-crs/*.conf\nInclude modsecurity.d/owasp-crs/rules/*.conf" dest="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
-    when: not owaspStat.stat.exists and crs_version == "v3.0.0-rc1"
+    when: not owaspStat.stat.exists and crs_version == "v3.0/master"
   - name: Add a script to load our CRS Rules (v2)
     copy: content="Include modsecurity.d/owasp-crs/*.conf\nInclude modsecurity.d/owasp-crs/base_rules/*.conf" dest="{{ HttpServerRoot }}/modsecurity.d/includeOWASP.conf"
-    when: not owaspStat.stat.exists and crs_version == "master"
+    when: not owaspStat.stat.exists and crs_version == "v2.2/master"
 
   tags: crs_install
 
