@@ -5,6 +5,11 @@
   - name: find out where our httpd.conf is.
     find: paths="/etc/" patterns="httpd.conf" recurse=yes follow=true
     register: HttpConfPath
+    when: ansible_os_family == 'RedHat'
+  - name: find out where our apache2.conf is.
+    find: paths="/etc/" patterns="apache2.conf" recurse=yes follow=true
+    register: HttpConfPath
+    when: ansible_os_family == 'Debian'    
   - name: extract Path for ModSecModule
     set_fact:
        ModSecModulePath: "{{ ModSecModulePath[\"files\"][0][\"path\"] }}"
