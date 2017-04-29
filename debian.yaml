@@ -1,39 +1,25 @@
 ---
-
-    - name: Install prerequisite packages
-      action: >
-        {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+    - name: Install apache debian prerequisite packages
+      apt: pkg={{ item }} state=installed update_cache=yes
       with_items:
         - libtool
         - automake
         - pkgconf
         - apache2-dev
-        - libpcre3-devel
         - libpcre3-dev
         - libxml2-dev
         - libyajl-dev
         - ssdeep
-        - liblua5.3-dev
+        - liblua5.2-dev
         - libcurl4-openssl-dev
-        
-    - name: Installs apache web server
-      apt: name=apache2 update_cache=yes state=latest
-      notify:
-        - start apache2
-    
-    - name: Installs apache2 http modules
-      action: >
-        apache2_module name={{ item }} state=present
-      with_items:
-        - security2
-        - unique_id 
-        - headers 
-        - ssl 
-        - socache_shmcb
-       notify:
-        - restart apache
-     
-   handlers:
-    - name: restart apache
-      service: name=httpd state=restarted
 
+    - name: Installs apache web server
+      apt: pkg=apache2 update_cache=yes state=latest
+
+    - name: Installs apache2 http modules
+      apache2_module: name={{ item }} state=present
+      with_items:
+        - unique_id
+        - headers
+        - ssl
+        - socache_shmcb
