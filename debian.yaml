@@ -22,4 +22,3 @@
         - unique_id
         - headers
         - ssl
-        - socache_shmcb
