@@ -4,7 +4,7 @@
       with_items:
         - libtool
         - automake
-        - pkgconf
+        - autoconf
         - apache2-dev
         - libpcre3-dev
         - libxml2-dev
