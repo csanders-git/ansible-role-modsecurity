@@ -1,6 +1,6 @@
 ---
   - name: Find our modsecurity.so Module
-    find: paths="/etc/" patterns="mod_security2.so" recurse=yes follow=true
+    find: paths="/etc/,/usr/lib/" patterns="mod_security2.so" recurse=yes follow=true
     register: ModSecModulePath
   - name: find out where our httpd.conf is.
     find: paths="/etc/" patterns="httpd.conf" recurse=yes follow=true
