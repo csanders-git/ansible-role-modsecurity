@@ -11,6 +11,9 @@
       register: configureStat
     - name: Run autogen.sh
       command: ./autogen.sh chdir="{{ ScratchLocation }}/ModSecurity"
+      register: hello
+    - debug: msg="{{ hello.stdout }}"
+    - debug: msg="{{ hello.stderr }}"
       when: not configureStat.stat.exists
     - name: Check if Makefile already exists
       stat: path="{{ ScratchLocation }}/ModSecurity/Makefile"
