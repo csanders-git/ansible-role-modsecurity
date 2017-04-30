@@ -20,7 +20,7 @@
     fail: msg="We were unable to locate the httpd conf path or ModSec module path"
     when: foundData is not defined or foundData != 1
   - name: find the ServerRoot
-    shell: 'cat {{HttpConfPath}} | grep -o "^ServerRoot\s\".*\"$" | grep -o \".*\" | tr -d "\""'
+    shell: 'cat {{HttpConfPath}} | grep -o "^#*ServerRoot\s\".*\"$" | grep -o \".*\" | tr -d "\""'
     register: HttpServerRoot
   - name: Extract HTTP Server Root
     set_fact:

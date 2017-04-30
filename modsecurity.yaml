@@ -46,19 +46,19 @@
       line="LoadModule security2_module {{ ModSecModulePath }}"
       regexp="^\s*?LoadModule\ssecurity2_module\s.*?.so$"
       state=present
-      insertafter=EOF
+      insertafter=EOF    
   - name: Check if we have loaded the unique_id module
     lineinfile:
       dest="{{ HttpConfPath }}"
-      line="LoadModule unique_id_module modules/mod_unique_id.so"
+      line="LoadModule unique_id_module {{ ModSecModulePath | dirname }}/mod_unique_id.so"
       regexp="^\s*?LoadModule\sunique_id_module\s.*?.so$"
       state=present
       insertafter=EOF
   - name: Check if we have added our include
     lineinfile:
       dest="{{ HttpConfPath }}"
-      line="Include modsecurity.d/*.conf"
-      regexp="^Include modsecurity\.d\/\*\.conf$"
+      line="IncludeOptional modsecurity.d/*.conf"
+      regexp="^IncludeOptional modsecurity\.d\/\*\.conf$"
       state=present
       insertafter=EOF
   - name: Copy modsecurity.conf from git
@@ -94,8 +94,8 @@
   - name: Check if we have added our include
     lineinfile:
       dest="{{ HttpConfPath }}"
-      line="Include modsecurity.d/*.conf"
-      regexp="^Include modsecurity\.d\/\*\.conf$"
+      line="IncludeOptional modsecurity.d/*.conf"
+      regexp="^IncludeOptional modsecurity\.d\/\*\.conf$"
       state=present
       insertafter=EOF
   - name: Create modsecurity.d directory
@@ -179,7 +179,7 @@
     lineinfile:
       dest="{{ HttpConfPath }}"
       line=""
-      regexp="^Include modsecurity\.d\/\*\.conf$"
+      regexp="^IncludeOptional modsecurity\.d\/\*\.conf$"
       state=present
   tags: modsec_uninstall
 
