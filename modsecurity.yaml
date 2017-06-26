@@ -62,9 +62,9 @@
       state=present
       insertafter=EOF
   - name: Copy modsecurity.conf from git
-    copy: src="{{ ScratchLocation }}/ModSecurity/modsecurity.conf-recommended" dest="{{ HttpServerRoot }}/modsecurity.d/modsecurity.conf"
+    copy: src="{{ ScratchLocation }}/ModSecurity/modsecurity.conf-recommended" dest="{{ HttpServerRoot }}/modsecurity.d/modsecurity.conf" remote_src=true
   - name: Copy unicode.mapping from git
-    copy: src="{{ ScratchLocation }}/ModSecurity/unicode.mapping" dest="{{ HttpServerRoot }}/modsecurity.d/unicode.mapping"
+    copy: src="{{ ScratchLocation }}/ModSecurity/unicode.mapping" dest="{{ HttpServerRoot }}/modsecurity.d/unicode.mapping" remote_src=true
   # Remove the scratch
   - name: get scratch stat info
     stat: path="{{ ScratchLocation }}"
